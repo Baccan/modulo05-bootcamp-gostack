@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { FaGithubAlt, FaPlus, FaSpinner } from 'react-icons/fa';
+import { Link } from 'react-router-dom';
 
 import api from '../../services/api';
 
@@ -11,6 +12,24 @@ export default class Main extends Component {
     repositories: [],
     loading: false,
   };
+
+  // carregar os dados do localStorage
+  componentDidMount() {
+    const repositories = localStorage.getItem('repositories');
+
+    if (repositories) {
+      this.setState({ repositories: JSON.parse(repositories) });
+    }
+  }
+
+  // salvar os dados no localSotrage
+  componentDidUpdate(_, prevState) {
+    const { repositories } = this.state;
+
+    if (prevState.repositories !== repositories) {
+      localStorage.setItem('repositories', JSON.stringify(repositories));
+    }
+  }
 
   handleInputChange = e => {
     this.setState({ newRepo: e.target.value });
@@ -61,10 +80,11 @@ export default class Main extends Component {
           />
 
           <SubmitButton loading={loading}>
-            {loading ? (
-              <FaSpinner color="#FFF" size={14} />
+            {loading ? ( // se o loading for true mostra o spinner
+              <FaSpinner color="#fff" size={14} />
             ) : (
-              <FaPlus color="#FFF" size={14} />
+              // senão mostra o sinal de mais
+              <FaPlus color="#fff" size={14} />
             )}
           </SubmitButton>
         </Form>
@@ -73,7 +93,10 @@ export default class Main extends Component {
           {repositories.map(repository => (
             <li key={repository.name}>
               <span>{repository.name}</span>
-              <a href="">Detalhes</a>
+              {/* encodeURIComponent é responsável por substituir a barra da url do repositório por um encode */}
+              <Link to={`/repository/${encodeURIComponent(repository.name)}`}>
+                Detalhes
+              </Link>
             </li>
           ))}
         </List>
